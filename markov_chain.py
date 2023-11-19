@@ -63,8 +63,7 @@ def AttackStrategy_1(p, rounds):
 
 
 def theorical_result(p):
-    result = ((p**2)*(4-p))/(1+p+p**3)   
-    return result
+    return ((p**2)*(4-p))/(1+p+p**3)   
 
 print(AttackStrategy_1(0.5, 5000000))
 print("theorical_result :", theorical_result(0.5))
