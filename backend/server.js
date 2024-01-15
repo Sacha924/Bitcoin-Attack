@@ -1,22 +1,23 @@
 const express = require('express');
 const app = express();
 const port = 8080;
+const cors = require('cors');
 
+app.use(cors());
 app.use(express.json());
 
-let honestBlocks = 0;
-let attackerBlocks = 0;
-let state = 0;
 
 app.post('/makeRound', (req, res) => {
     let round_finished = false
     let state = 0
     let honest_blocks_mined = 0
     let attacker_blocks_mined = 0
+    let {p} = req.body
 
     while (!round_finished) {
+        console.log("here")
         let result = mine_block(p)
-
+        console.log(result)
         if (state === 0) {
             if (result === "honest") {
                 honest_blocks_mined += 1
@@ -54,12 +55,11 @@ app.post('/makeRound', (req, res) => {
                 round_finished = true
             }
         }
-
-        res.json({
-            honestBlocks,
-            attackerBlocks
-        });
     }
+    res.json({
+        honest_blocks_mined,
+        attacker_blocks_mined
+    });
 });
 
 const mine_block = (p) =>{
