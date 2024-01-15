@@ -57,9 +57,19 @@ img {
   margin-bottom: 15px;
 }
 
+@keyframes backgroundFlash {
+  from { background-color: #4CAF50; } /* Green background */
+  to { background-color: white; }
+}
+
+.mined {
+  animation: backgroundFlash 2s;
+}
+
 
 @media (max-width: 768px) {
   .App {
     flex-direction: column;
   }
 }
+

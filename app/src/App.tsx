@@ -6,7 +6,7 @@ function App() {
   const [attackerBlocks, setAttackerBlocks] = useState(0);
   const [roundNumber, setroundNumber] = useState(0);
   const [bobProbability, setBobProbability] = useState(0.5);
-  
+  const [minedBy, setMinedBy] = useState('');
 
   const launchRound = async () => {
     const rawResponse = await fetch('http://localhost:8080/makeRound', {
@@ -19,6 +19,14 @@ function App() {
     });
     const {honest_blocks_mined, attacker_blocks_mined} = await rawResponse.json();
 
+    if (honest_blocks_mined > 0) {
+      setMinedBy('honest');
+      setTimeout(() => setMinedBy(''), 1000);
+    } else if (attacker_blocks_mined > 0) {
+      setMinedBy('attacker');
+      setTimeout(() => setMinedBy(''), 1000);
+    }
+
     setHonestBlocks(honestBlocks + honest_blocks_mined)
     setAttackerBlocks(attackerBlocks + attacker_blocks_mined)
     setroundNumber(roundNumber + 1)
@@ -26,7 +34,7 @@ function App() {
 
   return (
     <div className="App">
-      <div className="alice-part">
+      <div className={`alice-part ${minedBy === 'honest' ? 'mined' : ''}`}>
         <p className='status'>Honest Miner</p>
         <img src="Alice.JPG" />
         <p>Number of blocks mined: {honestBlocks}</p>
@@ -45,7 +53,7 @@ function App() {
         <button onClick={launchRound}>Launch 1 round</button>
       </div>
 
-      <div className="bob-part">
+      <div className={`bob-part ${minedBy === 'attacker' ? 'mined' : ''}`}>
         <p className='status'>Attacker</p>
         <img src="Bob.JPG" />
         <p>Number of blocks mined: {attackerBlocks}</p>
