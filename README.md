@@ -108,3 +108,30 @@ Impact on Network: Such attacks can potentially lead to reduced trust in the blo
 ## Difference from the 1+2 Attack
 Attack Strategy: While both involve strategic block publication, the 1+2 attack specifically targets situations of potential blockchain forks, whereas selfish mining is more about creating and exploiting a secret fork.
 State Transitions: The selfish mining strategy involves more complex state transitions based on the ongoing competition between the honest miners and the attacker.
+
+
+## 1+2 attack strategy Application
+
+
+After creating a python code illustrating how this strategy works, I decided to create an application illustrating it, with a backend using nodeJS and a React application, featuring an honest miner, Alice, and a dishonest miner, Bob. 
+
+
+## Difficulties encountered 
+
+
+The application code is pretty straightforward to build, but one error I encountered when I wanted to propose an autoplay mode was that I had a problem updating my states, due to the following reason: closure in JavaScript. When you set up your interval with setInterval, it captures the current state values (honestBlocks, attackerBlocks, roundNumber) at that moment. Subsequent calls to launchRound within the interval use these captured state values, which do not get updated even though you call setHonestBlocks, setAttackerBlocks, and setroundNumber.
+
+Solution : use a functional update with your state setters. Instead of passing a new value directly to the setters, you pass a function that receives the previous state value and returns the updated value. This ensures that you always work with the most recent state.
+
+So this code :
+```ts
+    setHonestBlocks(honestBlocks + honest_blocks_mined)
+    setAttackerBlocks(attackerBlocks + attacker_blocks_mined)
+    setroundNumber(roundNumber + 1)
+```
+become this :
+```ts
+    setHonestBlocks(prevHonestBlocks => prevHonestBlocks + honest_blocks_mined);
+    setAttackerBlocks(prevAttackerBlocks => prevAttackerBlocks + attacker_blocks_mined);
+    setroundNumber(prevRoundNumber => prevRoundNumber + 1);
+```
