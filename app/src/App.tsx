@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 
 function App() {
@@ -7,6 +7,7 @@ function App() {
   const [roundNumber, setroundNumber] = useState(0);
   const [bobProbability, setBobProbability] = useState(0.5);
   const [minedBy, setMinedBy] = useState('');
+  const [intervalId, setIntervalId] = useState<NodeJS.Timer | null>(null);
 
   const launchRound = async () => {
     const rawResponse = await fetch('http://localhost:8080/makeRound', {
@@ -17,7 +18,7 @@ function App() {
       },
       body: JSON.stringify({ p: bobProbability })
     });
-    const {honest_blocks_mined, attacker_blocks_mined} = await rawResponse.json();
+    const { honest_blocks_mined, attacker_blocks_mined } = await rawResponse.json();
 
     if (honest_blocks_mined > 0) {
       setMinedBy('honest');
@@ -27,10 +28,30 @@ function App() {
       setTimeout(() => setMinedBy(''), 1000);
     }
 
-    setHonestBlocks(honestBlocks + honest_blocks_mined)
-    setAttackerBlocks(attackerBlocks + attacker_blocks_mined)
-    setroundNumber(roundNumber + 1)
+    setHonestBlocks(prevHonestBlocks => prevHonestBlocks + honest_blocks_mined);
+    setAttackerBlocks(prevAttackerBlocks => prevAttackerBlocks + attacker_blocks_mined);
+    setroundNumber(prevRoundNumber => prevRoundNumber + 1);
   }
+
+  const toggleAutoLaunch = () => {
+    if (intervalId) {
+      clearInterval(intervalId);
+      setIntervalId(null);
+    } else {
+      const id = setInterval(() => {
+        launchRound();
+      }, 1100);
+      setIntervalId(id);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [intervalId]);
 
   return (
     <div className="App">
@@ -51,6 +72,9 @@ function App() {
         />
         <p>Round number {roundNumber}</p>
         <button onClick={launchRound}>Launch 1 round</button>
+        <button onClick={toggleAutoLaunch}>
+          {intervalId ? 'Stop Auto Launch' : 'Start Auto Launch'}
+        </button>
       </div>
 
       <div className={`bob-part ${minedBy === 'attacker' ? 'mined' : ''}`}>
