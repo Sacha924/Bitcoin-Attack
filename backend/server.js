@@ -15,9 +15,8 @@ app.post('/makeRound', (req, res) => {
     let {p} = req.body
 
     while (!round_finished) {
-        console.log("here")
         let result = mine_block(p)
-        console.log(result)
+
         if (state === 0) {
             if (result === "honest") {
                 honest_blocks_mined += 1
